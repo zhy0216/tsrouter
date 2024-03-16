@@ -38,3 +38,18 @@ test("router get may match multiple links", async () => {
   const fn = router.match("/hello/world", "GET");
   expect(await fn?.({ params: {} } as any)).toBe("hello, world");
 });
+
+test("router post should work", async () => {
+  const router = new Router<Request>();
+
+  router.post("/:action/:username", async (ctx) => {
+    return ctx.params.action + "| " + ctx.params.username;
+  });
+
+  router.post("/hello/test", async (ctx) => {
+    return "hello, test";
+  });
+
+  const fn = router.match("/hello/test", "POST");
+  expect(await fn?.({ params: {} } as any)).toBe("hello, test");
+});

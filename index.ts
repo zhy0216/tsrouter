@@ -43,6 +43,8 @@ interface StoreTrieData {
   fn: (ctx: unknown) => Promise<Response | unknown>;
 }
 
+export type METHODS = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH";
+
 export class Router<CTX> {
   store: Map<string, Trie<StoreTrieData>> = new Map();
 
@@ -56,9 +58,8 @@ export class Router<CTX> {
     return trie;
   }
 
-  get<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    const key = "GET";
-    let trie = this.getOrNewTireByMethod(key);
+  add<T extends string>(method: METHODS, url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    let trie = this.getOrNewTireByMethod(method);
 
     const segments = url.split("/");
     const parameterNames: string[] = [];
@@ -72,6 +73,26 @@ export class Router<CTX> {
     });
 
     trie.data = { parameterNames, fn } as StoreTrieData;
+  }
+
+  get<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    this.add("GET", url, fn);
+  }
+
+  post<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    this.add("POST", url, fn);
+  }
+  put<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    this.add("PUT", url, fn);
+  }
+  patch<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    this.add("PATCH", url, fn);
+  }
+  options<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    this.add("OPTIONS", url, fn);
+  }
+  delete<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
+    this.add("DELETE", url, fn);
   }
 
   _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>, parameters: string[], startIndex: number): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
