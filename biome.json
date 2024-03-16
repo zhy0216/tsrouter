@@ -15,6 +15,6 @@
     "rules": {
       "recommended": true
     },
-    "ignore": ["benchmarks"]
+    "ignore": ["benchmarks", "index.test.ts"]
   }
 }
