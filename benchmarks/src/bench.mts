@@ -9,6 +9,7 @@ import { memoiristRouter } from './memoirist.mts'
 import { radix3Router } from './radix3.mts'
 import type { Route, RouterInterface } from './tool.mts'
 import { trekRouter } from './trek-router.mts'
+import {tsRouter} from "./tsrouter.mts"
 
 const routers: RouterInterface[] = [
   regExpRouter,
@@ -21,6 +22,7 @@ const routers: RouterInterface[] = [
   koaRouter,
   radix3Router,
   memoiristRouter,
+  tsRouter
 ]
 
 medleyRouter.match({ method: 'GET', path: '/user' })
