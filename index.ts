@@ -82,15 +82,19 @@ export class Router<CTX> {
   post<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
     this.add("POST", url, fn);
   }
+
   put<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
     this.add("PUT", url, fn);
   }
+
   patch<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
     this.add("PATCH", url, fn);
   }
+
   options<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
     this.add("OPTIONS", url, fn);
   }
+
   delete<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
     this.add("DELETE", url, fn);
   }
