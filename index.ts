@@ -77,6 +77,7 @@ export class Router<CTX> {
   _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>, parameters: string[], startIndex: number): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
     let curTire: Trie<StoreTrieData> | undefined = initTrie;
     const laterMatchParas: { trie: Trie<StoreTrieData>; parameters: string[]; startIndex: number }[] = [];
+
     for (let i = startIndex; i < segments.length; i++) {
       const segment = segments[i];
       const dynamicTrie: Trie<StoreTrieData> | undefined = curTire?.get(":");
@@ -88,13 +89,15 @@ export class Router<CTX> {
         }
       } else {
         if (dynamicTrie) {
-          laterMatchParas.push({ trie: dynamicTrie, startIndex: i, parameters: parameters.concat(segment) });
+          laterMatchParas.push({ trie: dynamicTrie, startIndex: i + 1, parameters: parameters.concat(segment) });
         }
       }
     }
+
     if (curTire?.data) {
       return { trie: curTire, parameters };
     }
+
     for (const { trie, startIndex, parameters } of laterMatchParas) {
       const result = this._matchTrie(segments, trie, parameters, startIndex);
       if (result) {
