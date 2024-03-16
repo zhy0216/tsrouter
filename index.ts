@@ -58,47 +58,39 @@ export class Router<CTX> {
     return trie;
   }
 
-  add<T extends string>(method: METHODS, url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    let trie = this.getOrNewTireByMethod(method);
+  _add<T extends string>(method: METHODS): (url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown) => void {
+    return (url, fn) => {
+      let trie = this.getOrNewTireByMethod(method);
 
-    const segments = url.split("/");
-    const parameterNames: string[] = [];
+      const segments = url.split("/");
+      const parameterNames: string[] = [];
 
-    for (const segment of segments) {
-      if (segment.startsWith(":")) {
-        parameterNames.push(segment.slice(1));
-        trie = trie.getOrNew(":");
-      } else {
-        trie = trie.getOrNew(segment);
+      for (const segment of segments) {
+        if (segment.startsWith(":")) {
+          parameterNames.push(segment.slice(1));
+          trie = trie.getOrNew(":");
+        } else {
+          trie = trie.getOrNew(segment);
+        }
       }
-    }
 
-    trie.data = { parameterNames, fn } as StoreTrieData;
+      trie.data = { parameterNames, fn } as StoreTrieData;
+    };
   }
 
-  get<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    this.add("GET", url, fn);
-  }
+  add = <T extends string>(method: METHODS) => this._add(method);
 
-  post<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    this.add("POST", url, fn);
-  }
+  get = this._add("GET");
 
-  put<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    this.add("PUT", url, fn);
-  }
+  post = this._add("POST");
 
-  patch<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    this.add("PATCH", url, fn);
-  }
+  put = this._add("PUT");
 
-  options<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    this.add("OPTIONS", url, fn);
-  }
+  patch = this._add("PATCH");
 
-  delete<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
-    this.add("DELETE", url, fn);
-  }
+  options = this._add("PATCH");
+
+  delete = this._add("DELETE");
 
   _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>, parameters: string[], startIndex: number): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
     let curTire: Trie<StoreTrieData> | undefined = initTrie;
