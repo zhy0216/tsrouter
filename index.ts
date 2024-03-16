@@ -58,7 +58,7 @@ export class Router<CTX> {
 
   get<T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response | unknown>) {
     const key = "GET";
-    let trie = this.getOrNewTireByMethod("GET");
+    let trie = this.getOrNewTireByMethod(key);
 
     const segments = url.split("/");
     const parameterNames: string[] = [];
@@ -77,15 +77,12 @@ export class Router<CTX> {
   _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>, parameters: string[], startIndex: number): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
     let curTire: Trie<StoreTrieData> | undefined = initTrie;
     const laterMatchParas: { trie: Trie<StoreTrieData>; parameters: string[]; startIndex: number }[] = [];
-
     for (let i = startIndex; i < segments.length; i++) {
       const segment = segments[i];
-      const dynamicTrie = initTrie.get(":");
-      curTire = initTrie.get(segment);
+      const dynamicTrie: Trie<StoreTrieData> | undefined = curTire?.get(":");
+      curTire = curTire?.get(segment);
       if (!curTire) {
-        if (!dynamicTrie) {
-          return;
-        } else {
+        if (dynamicTrie) {
           parameters.push(segment);
           curTire = dynamicTrie;
         }
@@ -95,11 +92,9 @@ export class Router<CTX> {
         }
       }
     }
-
-    if (curTire.data) {
+    if (curTire?.data) {
       return { trie: curTire, parameters };
     }
-
     for (const { trie, startIndex, parameters } of laterMatchParas) {
       const result = this._matchTrie(segments, trie, parameters, startIndex);
       if (result) {
@@ -108,7 +103,7 @@ export class Router<CTX> {
     }
   }
 
-  match(url: string, method: string): ((ctx: CTX & { paras: Record<string, string> }) => Promise<Response | unknown>) | undefined {
+  match(url: string, method: string): ((ctx: CTX & { params: Record<string, string> }) => Promise<Response | unknown>) | undefined {
     const segments = url.split("/");
     const trie: Trie<StoreTrieData> = this.getOrNewTireByMethod(method);
     const result = this._matchTrie(segments, trie, [], 0);
@@ -117,10 +112,10 @@ export class Router<CTX> {
       const fn = result.trie.data.fn;
       const parameterNames = result.trie.data.parameterNames;
 
-      return (ctx: CTX & { paras: Record<string, string> }) => {
+      return (ctx: CTX & { params: Record<string, string> }) => {
         if (result.parameters) {
           for (let i = 0; i < result.parameters.length; i++) {
-            ctx.paras[parameterNames[i]] = result.parameters[i];
+            ctx.params[parameterNames[i]] = result.parameters[i];
           }
         }
 
