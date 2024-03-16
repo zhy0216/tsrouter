@@ -7,5 +7,4 @@ basic idea is from https://github.com/ghoullier/awesome-template-literal-types?t
 * match order starts from static segment first, not insert order.
 
 ## TODO
-* fix lint
 * add test

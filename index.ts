@@ -4,7 +4,7 @@ type ExtractRouteParams<T extends string> = string extends T
     ? { [k in Param | keyof ExtractRouteParams<Rest>]: string }
     : T extends `${infer Start}:${infer Param}`
       ? { [k in Param]: string }
-      : {};
+      : Record<string, string>;
 
 class Trie<T> {
   _map?: Map<string, Trie<T>>;
@@ -24,9 +24,9 @@ class Trie<T> {
       const nt = new Trie<T>();
       this.map.set(key, nt);
       return nt;
-    } else {
-      return t;
     }
+
+    return t;
   }
 
   get map(): Map<string, Trie<T>> {
@@ -63,14 +63,15 @@ export class Router<CTX> {
 
     const segments = url.split("/");
     const parameterNames: string[] = [];
-    segments.forEach((segment) => {
+
+    for (const segment of segments) {
       if (segment.startsWith(":")) {
         parameterNames.push(segment.slice(1));
         trie = trie.getOrNew(":");
       } else {
         trie = trie.getOrNew(segment);
       }
-    });
+    }
 
     trie.data = { parameterNames, fn } as StoreTrieData;
   }
@@ -135,10 +136,11 @@ export class Router<CTX> {
     const segments = url.split("/");
     const trie: Trie<StoreTrieData> = this.getOrNewTireByMethod(method);
     const result = this._matchTrie(segments, trie, [], 0);
+    const data = result?.trie?.data;
 
-    if (result && result.trie.data) {
-      const fn = result.trie.data.fn;
-      const parameterNames = result.trie.data.parameterNames;
+    if (data) {
+      const fn = data.fn;
+      const parameterNames = data.parameterNames;
 
       return (ctx: CTX & { params: Record<string, string> }) => {
         if (result.parameters) {
