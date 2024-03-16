@@ -4,7 +4,7 @@ import { routes, handler } from "./tool.mts";
 
 const router = new Router();
 for (const route of routes) {
-  router.add(route.method, route.path, handler as any);
+  router.add(route.method, route.path, handler);
 }
 
 export const tsRouter: RouterInterface = {

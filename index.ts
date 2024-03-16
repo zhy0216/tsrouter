@@ -58,7 +58,7 @@ export class Router<CTX> {
     return trie;
   }
 
-  _add<T extends string>(method: METHODS): (url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown) => void {
+  _add(method: METHODS): <T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown) => void {
     return (url, fn) => {
       let trie = this.getOrNewTireByMethod(method);
 
@@ -78,7 +78,7 @@ export class Router<CTX> {
     };
   }
 
-  add = <T extends string>(method: METHODS) => this._add(method);
+  add = <T extends string>(method: METHODS, url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown) => this._add(method)(url, fn);
 
   get = this._add("GET");
 
@@ -137,7 +137,9 @@ export class Router<CTX> {
       return (ctx: CTX & { params: Record<string, string> }) => {
         if (result.parameters) {
           for (let i = 0; i < result.parameters.length; i++) {
-            ctx.params[parameterNames[i]] = result.parameters[i];
+            if (ctx?.params) {
+              ctx.params[parameterNames[i]] = result.parameters[i];
+            }
           }
         }
 
