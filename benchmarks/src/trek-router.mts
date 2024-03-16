@@ -1,17 +1,17 @@
-import TrekRouter from 'trek-router'
-import type { RouterInterface } from './tool.mts'
-import { routes, handler } from './tool.mts'
+import TrekRouter from "trek-router";
+import type { RouterInterface } from "./tool.mts";
+import { routes, handler } from "./tool.mts";
 
-const name = 'trek-router'
+const name = "trek-router";
 
-const router = new TrekRouter()
+const router = new TrekRouter();
 for (const route of routes) {
-  router.add(route.method, route.path, handler())
+  router.add(route.method, route.path, handler());
 }
 
 export const trekRouter: RouterInterface = {
   name,
   match: (route) => {
-    router.find(route.method, route.path)
+    router.find(route.method, route.path);
   },
-}
+};

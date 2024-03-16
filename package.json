@@ -6,7 +6,7 @@
     "format": "bunx @biomejs/biome format . --write --no-errors-on-unmatched",
     "lint": "bunx @biomejs/biome format . && bunx @biomejs/biome lint .",
     "types": "bunx tsc",
-    "ci": "bun types && bun run lint && bun test",
+    "ci": "bun run types && bun run lint && bun test",
     "prepare": "husky"
   },
   "devDependencies": {
