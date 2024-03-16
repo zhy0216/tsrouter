@@ -6,7 +6,7 @@ const name = "trek-router";
 
 const router = new TrekRouter();
 for (const route of routes) {
-  router.add(route.method, route.path, handler());
+  router.add(route.method, route.path, handler);
 }
 
 export const trekRouter: RouterInterface = {
