@@ -7,7 +7,7 @@ test("router get by params", async () => {
     return `hello, ${ctx.params.username}`;
   });
 
-  const fn = router.match("/user/world", "GET");
+  const fn = router.match("GET", "/user/world");
   expect(await fn?.({ params: {} })).toBe("hello, world");
 });
 
@@ -21,7 +21,7 @@ test("router get crossing multiple links", async () => {
     return `${ctx.params.action}, ${ctx.params.username}`;
   });
 
-  const fn = router.match("/hello/world", "GET");
+  const fn = router.match("GET", "/hello/world");
   expect(await fn?.({ params: {} })).toBe("hello, world");
 });
 
@@ -35,7 +35,7 @@ test("router get may match multiple links", async () => {
     return `${ctx.params.action}, ${ctx.params.username}`;
   });
 
-  const fn = router.match("/hello/world", "GET");
+  const fn = router.match("GET", "/hello/world");
   expect(await fn?.({ params: {} })).toBe("hello, world");
 });
 
@@ -50,7 +50,7 @@ test("router post should work", async () => {
     return "hello, test";
   });
 
-  const fn = router.match("/hello/test", "POST");
+  const fn = router.match("POST", "/hello/test");
   expect(await fn?.({ params: {} })).toBe("hello, test");
 });
 
@@ -59,7 +59,7 @@ describe("complex", () => {
   const router = new Router();
 
   const add = (method: METHODS, url: string, result: string) => router.add(method, url, () => result);
-  const match = (method: METHODS, url: string): string => router.match(url, method)?.({ params: {} }) as any;
+  const match = (method: METHODS, url: string): string => router.match(method, url)?.({ params: {} }) as any;
 
   add("GET", "/abc", "/abc");
   add("GET", "/id/:id/book", "book");
@@ -106,48 +106,9 @@ describe("complex", () => {
     expect(match("GET", "/id/1/name/ame")).toEqual("/id/1/name/ame");
   });
   //
-  // it("wildcard on root path", () => {
-  //   const router = new Memoirist();
+
   //
-  //   router.add("GET", "/a/b", "ok");
-  //   router.add("GET", "/*", "all");
-  //
-  //   expect(match("GET", "/a/b/c/d")).toEqual({
-  //     store: "all",
-  //     params: {
-  //       "*": "a/b/c/d",
-  //     },
-  //   });
-  //
-  //   expect(match("GET", "/")).toEqual({
-  //     store: "all",
-  //     params: {
-  //       "*": "",
-  //     },
-  //   });
-  // });
-  //
-  // it("can overwrite wildcard", () => {
-  //   const router = new Memoirist();
-  //
-  //   router.add("GET", "/", "ok");
-  //   router.add("GET", "/*", "all");
-  //
-  //   expect(match("GET", "/a/b/c/d")).toEqual({
-  //     store: "all",
-  //     params: {
-  //       "*": "a/b/c/d",
-  //     },
-  //   });
-  //
-  //   expect(match("GET", "/")).toEqual({
-  //     store: "ok",
-  //     params: {},
-  //   });
-  // });
-  //
-  // TODO
-  it.skip("handle trailing slash", async () => {
+  it("handle trailing slash", async () => {
     const router = new Router();
 
     router.add("GET", "/abc/def", () => "A");
@@ -158,89 +119,131 @@ describe("complex", () => {
     expect(await router.match("GET", "/abc/def/")?.({ params: {} })).toEqual("A");
   });
   //
-  // it("handle static prefix wildcard", () => {
-  //   const router = new Memoirist();
-  //   router.add("GET", "/a/b", "ok");
-  //   router.add("GET", "/*", "all");
-  //
-  //   expect(match("GET", "/a/b/c/d")).toEqual({
-  //     store: "all",
-  //     params: {
-  //       "*": "a/b/c/d",
-  //     },
-  //   });
-  //
-  //   expect(match("GET", "/")).toEqual({
-  //     store: "all",
-  //     params: {
-  //       "*": "",
-  //     },
-  //   });
-  // });
-  //
-  //
-  // it("handle wildcard without static fallback", () => {
-  //   const router = new Memoirist();
-  //   router.add("GET", "/public/*", "foo");
-  //   router.add("GET", "/public-aliased/*", "foo");
-  //
-  //   expect(match("GET", "/public/takodachi.png")?.params["*"]).toBe("takodachi.png");
-  //   expect(match("GET", "/public/takodachi/ina.png")?.params["*"]).toBe("takodachi/ina.png");
-  // });
-  //
-  it("restore mangled path", () => {
-    const router = new Router();
-    const add = (method: METHODS, url: string, result: string) => router.add(method, url, () => result);
-    const match = (method: METHODS, url: string): string => router.match(url, method)?.({ params: {} }) as any;
+});
 
-    add("GET", "/users/:userId", "/users/:userId");
-    add("GET", "/game", "/game");
-    router.add("GET", "/game/:gameId/state", (ctx) => `/game/${ctx.params.gameId}/state`);
-    router.add("GET", "/game/:gameId", (ctx) => `/game/${ctx.params.gameId}`);
+// it("wildcard on root path", () => {
+//   const router = new Memoirist();
+//
+//   router.add("GET", "/a/b", "ok");
+//   router.add("GET", "/*", "all");
+//
+//   expect(match("GET", "/a/b/c/d")).toEqual({
+//     store: "all",
+//     params: {
+//       "*": "a/b/c/d",
+//     },
+//   });
+//
+//   expect(match("GET", "/")).toEqual({
+//     store: "all",
+//     params: {
+//       "*": "",
+//     },
+//   });
+// });
+//
+// it("can overwrite wildcard", () => {
+//   const router = new Memoirist();
+//
+//   router.add("GET", "/", "ok");
+//   router.add("GET", "/*", "all");
+//
+//   expect(match("GET", "/a/b/c/d")).toEqual({
+//     store: "all",
+//     params: {
+//       "*": "a/b/c/d",
+//     },
+//   });
+//
+//   expect(match("GET", "/")).toEqual({
+//     store: "ok",
+//     params: {},
+//   });
+// });
 
-    expect(match("GET", "/game/1/state")).toBe("/game/1/state");
-    expect(match("GET", "/game/1")).toBe("/game/1");
-  });
+// it("handle static prefix wildcard", () => {
+//   const router = new Memoirist();
+//   router.add("GET", "/a/b", "ok");
+//   router.add("GET", "/*", "all");
+//
+//   expect(match("GET", "/a/b/c/d")).toEqual({
+//     store: "all",
+//     params: {
+//       "*": "a/b/c/d",
+//     },
+//   });
+//
+//   expect(match("GET", "/")).toEqual({
+//     store: "all",
+//     params: {
+//       "*": "",
+//     },
+//   });
+// });
+//
+//
+// it("handle wildcard without static fallback", () => {
+//   const router = new Memoirist();
+//   router.add("GET", "/public/*", "foo");
+//   router.add("GET", "/public-aliased/*", "foo");
+//
+//   expect(match("GET", "/public/takodachi.png")?.params["*"]).toBe("takodachi.png");
+//   expect(match("GET", "/public/takodachi/ina.png")?.params["*"]).toBe("takodachi/ina.png");
+// });
+//
 
-  //
-  // it("should be a ble to register param after same prefix", () => {
-  //   const router = new Memoirist();
-  //
-  //   router.add("GET", "/api/abc/view/:id", "/api/abc/view/:id");
-  //   router.add("GET", "/api/abc/:type", "/api/abc/:type");
-  //
-  //   expect(match("GET", "/api/abc/type")).toEqual({
-  //     store: "/api/abc/:type",
-  //     params: {
-  //       type: "type",
-  //     },
-  //   });
-  //
-  //   expect(match("GET", "/api/abc/view/1")).toEqual({
-  //     store: "/api/abc/view/:id",
-  //     params: {
-  //       id: "1",
-  //     },
-  //   });
-  // });
-  //
-  // it("use exact match for part", () => {
-  //   const router = new Memoirist();
-  //
-  //   router.add("GET", "/api/search/:term", "/api/search/:term");
-  //   router.add("GET", "/api/abc/view/:id", "/api/abc/view/:id");
-  //   router.add("GET", "/api/abc/:type", "/api/abc/:type");
-  //
-  //   expect(match("GET", "/api/abc/type")?.store).toBe("/api/abc/:type");
-  //   expect(match("GET", "/api/awd/type")).toBe(null);
-  // });
-  //
-  it("not error on not found", () => {
-    const router = new Router();
+it("restore mangled path", () => {
+  const router = new Router();
+  const add = (method: METHODS, url: string, result: string) => router.add(method, url, () => result);
+  const match = (method: METHODS, url: string): string => router.match(method, url)?.({ params: {} }) as any;
 
-    router.add("GET", "/api/abc/:type", () => "/api/abc/:type");
+  add("GET", "/users/:userId", "/users/:userId");
+  add("GET", "/game", "/game");
+  router.add("GET", "/game/:gameId/state", (ctx) => `/game/${ctx.params.gameId}/state`);
+  router.add("GET", "/game/:gameId", (ctx) => `/game/${ctx.params.gameId}`);
 
-    expect(router.match("GET", "/api")).toBeUndefined();
-    expect(router.match("POST", "/api/awd/type")).toBeUndefined();
-  });
+  expect(match("GET", "/game/1/state")).toBe("/game/1/state");
+  expect(match("GET", "/game/1")).toBe("/game/1");
+});
+
+//
+// it("should be a ble to register param after same prefix", () => {
+//   const router = new Memoirist();
+//
+//   router.add("GET", "/api/abc/view/:id", "/api/abc/view/:id");
+//   router.add("GET", "/api/abc/:type", "/api/abc/:type");
+//
+//   expect(match("GET", "/api/abc/type")).toEqual({
+//     store: "/api/abc/:type",
+//     params: {
+//       type: "type",
+//     },
+//   });
+//
+//   expect(match("GET", "/api/abc/view/1")).toEqual({
+//     store: "/api/abc/view/:id",
+//     params: {
+//       id: "1",
+//     },
+//   });
+// });
+//
+// it("use exact match for part", () => {
+//   const router = new Memoirist();
+//
+//   router.add("GET", "/api/search/:term", "/api/search/:term");
+//   router.add("GET", "/api/abc/view/:id", "/api/abc/view/:id");
+//   router.add("GET", "/api/abc/:type", "/api/abc/:type");
+//
+//   expect(match("GET", "/api/abc/type")?.store).toBe("/api/abc/:type");
+//   expect(match("GET", "/api/awd/type")).toBe(null);
+// });
+//
+it("not error on not found", () => {
+  const router = new Router();
+
+  router.add("GET", "/api/abc/:type", () => "/api/abc/:type");
+
+  expect(router.match("GET", "/api")).toBeUndefined();
+  expect(router.match("POST", "/api/awd/type")).toBeUndefined();
 });

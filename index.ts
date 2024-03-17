@@ -118,7 +118,16 @@ export class Router<CTX> {
     }
   }
 
-  match(url: string, method: string): ((ctx: CTX & { params: Record<string, string> }) => Promise<Response | unknown>) | undefined {
+  match(
+    method: METHODS,
+    url: string,
+  ):
+    | ((
+        ctx: CTX & {
+          params: Record<string, string>;
+        },
+      ) => Promise<Response | unknown>)
+    | undefined {
     const segments = url.split("/");
     const trie: Trie<StoreTrieData> = this.getOrNewTireByMethod(method);
     const result = this._matchTrie(segments, trie);
