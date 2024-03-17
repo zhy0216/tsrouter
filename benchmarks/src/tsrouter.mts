@@ -10,6 +10,6 @@ for (const route of routes) {
 export const tsRouter: RouterInterface = {
   name: "TSRouter",
   match: (route) => {
-    router.match(route.path, route.method);
+    router.match(route.method, route.path);
   },
 };
