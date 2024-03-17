@@ -1,6 +1,6 @@
 {
-  "name": "your-project-name",
-  "module": "index.ts",
+  "name": "tsrouter2",
+  "main": "index.ts",
   "type": "module",
   "scripts": {
     "format": "bunx @biomejs/biome format . --write --no-errors-on-unmatched",
@@ -9,6 +9,9 @@
     "ci": "bun run types && bun run lint && bun test",
     "prepare": "husky"
   },
+  "files": [
+    "index.ts"
+  ],
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
     "@types/bun": "latest",
@@ -19,5 +22,5 @@
   "lint-staged": {
     "*.ts?(x)": "bunx @biomejs/biome format --write"
   },
-  "version": "0.0.1"
+  "version": "0.1.0"
 }
