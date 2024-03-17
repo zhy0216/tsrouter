@@ -4,7 +4,7 @@ basic idea is from https://github.com/ghoullier/awesome-template-literal-types?t
 
 * use [tire](https://en.wikipedia.org/wiki/Trie)
 * the fastest router in the js world
-* tiny
+* tiny (1.3kb after minify, 0.8kb after zip)
 
 ## Notice
 * only match request's pathname
@@ -14,6 +14,4 @@ basic idea is from https://github.com/ghoullier/awesome-template-literal-types?t
 see examples & [tests](https://github.com/zhy0216/tsrouter/blob/master/index.test.ts)
 
 ## TODO
-* add test
 * add example
-* release 1.0

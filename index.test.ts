@@ -1,6 +1,10 @@
 import { test, expect, it, describe } from "bun:test";
 import { type METHODS, Router } from ".";
 
+const quickMatch = async (router: Router<unknown>, method: METHODS, url: string): Promise<unknown> => {
+  return router.match(method, url)?.({ params: {} });
+};
+
 test("router get by params", async () => {
   const router = new Router<unknown>();
   router.get("/user/:username", async (ctx) => {
@@ -139,36 +143,23 @@ it("can overwrite wildcard", async () => {
   expect(await router.match("GET", "/")?.({ params: {} })).toEqual("ok");
 });
 
-// it("handle static prefix wildcard", () => {
-//   const router = new Memoirist();
-//   router.add("GET", "/a/b", "ok");
-//   router.add("GET", "/*", "all");
-//
-//   expect(match("GET", "/a/b/c/d")).toEqual({
-//     store: "all",
-//     params: {
-//       "*": "a/b/c/d",
-//     },
-//   });
-//
-//   expect(match("GET", "/")).toEqual({
-//     store: "all",
-//     params: {
-//       "*": "",
-//     },
-//   });
-// });
-//
-//
-// it("handle wildcard without static fallback", () => {
-//   const router = new Memoirist();
-//   router.add("GET", "/public/*", "foo");
-//   router.add("GET", "/public-aliased/*", "foo");
-//
-//   expect(match("GET", "/public/takodachi.png")?.params["*"]).toBe("takodachi.png");
-//   expect(match("GET", "/public/takodachi/ina.png")?.params["*"]).toBe("takodachi/ina.png");
-// });
-//
+it("handle static prefix wildcard", async () => {
+  const router = new Router();
+  router.add("GET", "/a/b", () => "ok");
+  router.add("GET", "/*", () => "all");
+
+  expect(await quickMatch(router, "GET", "/a/b/c/d")).toEqual("all");
+  expect(await quickMatch(router, "GET", "/")).toEqual("all");
+});
+
+it("handle wildcard without static fallback", async () => {
+  const router = new Router();
+  router.add("GET", "/public/*", () => "foo1");
+  router.add("GET", "/public-aliased/*", () => "foo2");
+
+  expect(await quickMatch(router, "GET", "/public/takodachi.png")).toBe("foo1");
+  expect(await quickMatch(router, "GET", "/public/takodachi/ina.png")).toBe("foo1");
+});
 
 it("restore mangled path", () => {
   const router = new Router();
@@ -184,39 +175,27 @@ it("restore mangled path", () => {
   expect(match("GET", "/game/1")).toBe("/game/1");
 });
 
-//
-// it("should be a ble to register param after same prefix", () => {
-//   const router = new Memoirist();
-//
-//   router.add("GET", "/api/abc/view/:id", "/api/abc/view/:id");
-//   router.add("GET", "/api/abc/:type", "/api/abc/:type");
-//
-//   expect(match("GET", "/api/abc/type")).toEqual({
-//     store: "/api/abc/:type",
-//     params: {
-//       type: "type",
-//     },
-//   });
-//
-//   expect(match("GET", "/api/abc/view/1")).toEqual({
-//     store: "/api/abc/view/:id",
-//     params: {
-//       id: "1",
-//     },
-//   });
-// });
-//
-// it("use exact match for part", () => {
-//   const router = new Memoirist();
-//
-//   router.add("GET", "/api/search/:term", "/api/search/:term");
-//   router.add("GET", "/api/abc/view/:id", "/api/abc/view/:id");
-//   router.add("GET", "/api/abc/:type", "/api/abc/:type");
-//
-//   expect(match("GET", "/api/abc/type")?.store).toBe("/api/abc/:type");
-//   expect(match("GET", "/api/awd/type")).toBe(null);
-// });
-//
+it("should be a ble to register param after same prefix", async () => {
+  const router = new Router();
+
+  router.add("GET", "/api/abc/view/:id", (ctx) => `/api/abc/view/${ctx.params.id}`);
+  router.add("GET", "/api/abc/:type", (ctx) => `/api/abc/${ctx.params.type}`);
+
+  expect(await quickMatch(router, "GET", "/api/abc/type")).toEqual("/api/abc/type");
+  expect(await quickMatch(router, "GET", "/api/abc/view/1")).toEqual("/api/abc/view/1");
+});
+
+it("use exact match for part", async () => {
+  const router = new Router();
+
+  router.add("GET", "/api/search/:term", (ctx) => `/api/search/${ctx.params.term}`);
+  router.add("GET", "/api/abc/view/:id", (ctx) => `/api/abc/view/${ctx.params.id}`);
+  router.add("GET", "/api/abc/:type", (ctx) => `/api/abc/${ctx.params.type}`);
+
+  expect(await quickMatch(router, "GET", "/api/abc/type")).toBe("/api/abc/type");
+  expect(await quickMatch(router, "GET", "/api/awd/type")).toBeUndefined();
+});
+
 it("not error on not found", () => {
   const router = new Router();
 
