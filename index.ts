@@ -92,34 +92,28 @@ export class Router<CTX> {
 
   delete = this._add("DELETE");
 
-  _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>, parameters: string[], startIndex: number): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
-    let curTire: Trie<StoreTrieData> | undefined = initTrie;
-    const laterMatchParas: { trie: Trie<StoreTrieData>; parameters: string[]; startIndex: number }[] = [];
+  _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
+    const paths: [Trie<StoreTrieData>, string[], number][] = [[initTrie, [], 0]];
+    const segmentLength = segments.length;
+    let pathLength = 1;
 
-    for (let i = startIndex; i < segments.length; i++) {
-      const segment = segments[i];
-      const dynamicTrie: Trie<StoreTrieData> | undefined = curTire?.get(":");
-      curTire = curTire?.get(segment);
-      if (!curTire) {
-        if (dynamicTrie) {
-          parameters.push(segment);
-          curTire = dynamicTrie;
-        }
-      } else {
-        if (dynamicTrie) {
-          laterMatchParas.push({ trie: dynamicTrie, startIndex: i + 1, parameters: parameters.concat(segment) });
-        }
+    while (pathLength) {
+      const [curTire, parameters, index] = paths[--pathLength];
+
+      if (segmentLength === index) {
+        return { trie: curTire, parameters };
       }
-    }
 
-    if (curTire?.data) {
-      return { trie: curTire, parameters };
-    }
+      const segment = segments[index];
 
-    for (const { trie, startIndex, parameters } of laterMatchParas) {
-      const result = this._matchTrie(segments, trie, parameters, startIndex);
-      if (result) {
-        return result;
+      const dynamicTrie = curTire.get(":");
+      if (dynamicTrie) {
+        paths[pathLength++] = [dynamicTrie, parameters.concat(segment), index + 1];
+      }
+
+      const trie = curTire.get(segment);
+      if (trie) {
+        paths[pathLength++] = [trie, parameters, index + 1];
       }
     }
   }
@@ -127,7 +121,7 @@ export class Router<CTX> {
   match(url: string, method: string): ((ctx: CTX & { params: Record<string, string> }) => Promise<Response | unknown>) | undefined {
     const segments = url.split("/");
     const trie: Trie<StoreTrieData> = this.getOrNewTireByMethod(method);
-    const result = this._matchTrie(segments, trie, [], 0);
+    const result = this._matchTrie(segments, trie);
     const data = result?.trie?.data;
 
     if (data) {

@@ -8,6 +8,5 @@ basic idea is from https://github.com/ghoullier/awesome-template-literal-types?t
 
 ## TODO
 * add test
-* try while loop dfs, not sure if this will be faster.
 * add wildcard
 * release 1.0
