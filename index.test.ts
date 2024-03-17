@@ -73,7 +73,8 @@ describe("complex", () => {
   router.add("GET", "/id/:id/name/a", (ctx) => `/id/${ctx.params.id}/name/a`);
   router.add("GET", "/dynamic/:name/then/static", (ctx) => `/dynamic/${ctx.params.name}/then/static`);
   add("GET", "/deep/nested/route", "/deep/nested/route");
-  // add("GET", "/rest/*", "/rest/*");
+  add("GET", "/rest/*", "/rest/*");
+
   it("match root", () => {
     expect(match("GET", "/")).toEqual("/");
   });
@@ -90,24 +91,22 @@ describe("complex", () => {
     expect(match("GET", "/deep/nested/route")).toEqual("/deep/nested/route");
   });
 
-  // it.skip("match wildcard", () => {
-  //   expect(match("GET", "/rest/a/b/c")).toEqual("/rest/a/b/c");
-  // });
-  //
+  it("match wildcard", () => {
+    expect(match("GET", "/rest/a/b/c")).toEqual("/rest/*");
+  });
+
   it("handle mixed dynamic and static", () => {
     expect(match("GET", "/dynamic/param/then/static")).toEqual("/dynamic/param/then/static");
   });
-  //
+
   it("handle static path in dynamic", () => {
     expect(match("GET", "/id/1/name/a")).toEqual("/id/1/name/a");
   });
-  //
+
   it("handle dynamic as fallback", () => {
     expect(match("GET", "/id/1/name/ame")).toEqual("/id/1/name/ame");
   });
-  //
 
-  //
   it("handle trailing slash", async () => {
     const router = new Router();
 
@@ -118,48 +117,27 @@ describe("complex", () => {
 
     expect(await router.match("GET", "/abc/def/")?.({ params: {} })).toEqual("A");
   });
-  //
 });
 
-// it("wildcard on root path", () => {
-//   const router = new Memoirist();
-//
-//   router.add("GET", "/a/b", "ok");
-//   router.add("GET", "/*", "all");
-//
-//   expect(match("GET", "/a/b/c/d")).toEqual({
-//     store: "all",
-//     params: {
-//       "*": "a/b/c/d",
-//     },
-//   });
-//
-//   expect(match("GET", "/")).toEqual({
-//     store: "all",
-//     params: {
-//       "*": "",
-//     },
-//   });
-// });
-//
-// it("can overwrite wildcard", () => {
-//   const router = new Memoirist();
-//
-//   router.add("GET", "/", "ok");
-//   router.add("GET", "/*", "all");
-//
-//   expect(match("GET", "/a/b/c/d")).toEqual({
-//     store: "all",
-//     params: {
-//       "*": "a/b/c/d",
-//     },
-//   });
-//
-//   expect(match("GET", "/")).toEqual({
-//     store: "ok",
-//     params: {},
-//   });
-// });
+it("wildcard on root path", async () => {
+  const router = new Router();
+
+  router.add("GET", "/a/b", () => "ok");
+  router.add("GET", "/*", () => "all");
+
+  expect(await router.match("GET", "/a/b/c/d")?.({ params: {} })).toEqual("all");
+  expect(await router.match("GET", "/")?.({ params: {} })).toEqual("all");
+});
+
+it("can overwrite wildcard", async () => {
+  const router = new Router();
+
+  router.add("GET", "/", () => "ok");
+  router.add("GET", "/*", () => "all");
+
+  expect(await router.match("GET", "/a/b/c/d")?.({ params: {} })).toEqual("all");
+  expect(await router.match("GET", "/")?.({ params: {} })).toEqual("ok");
+});
 
 // it("handle static prefix wildcard", () => {
 //   const router = new Memoirist();

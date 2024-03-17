@@ -99,21 +99,27 @@ export class Router<CTX> {
 
     while (pathLength) {
       const [curTire, parameters, index] = paths[--pathLength];
-
-      if (segmentLength === index) {
-        return { trie: curTire, parameters };
-      }
-
       const segment = segments[index];
 
       const dynamicTrie = curTire.get(":");
       if (dynamicTrie) {
+        if (segmentLength - 1 === index) {
+          return { trie: dynamicTrie, parameters: parameters.concat(segment) };
+        }
         paths[pathLength++] = [dynamicTrie, parameters.concat(segment), index + 1];
       }
 
       const trie = curTire.get(segment);
       if (trie) {
+        if (segmentLength - 1 === index) {
+          return { trie, parameters };
+        }
         paths[pathLength++] = [trie, parameters, index + 1];
+      }
+
+      const startTrie = curTire.get("*");
+      if (startTrie) {
+        return { trie: startTrie, parameters };
       }
     }
   }

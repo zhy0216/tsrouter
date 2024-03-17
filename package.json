@@ -1,6 +1,6 @@
 {
   "name": "your-project-name",
-  "module": "packages/packageA/index.ts",
+  "module": "index.ts",
   "type": "module",
   "scripts": {
     "format": "bunx @biomejs/biome format . --write --no-errors-on-unmatched",
