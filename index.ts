@@ -58,7 +58,12 @@ export class Router<CTX> {
     return trie;
   }
 
-  _add(method: METHODS): <T extends string>(url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown) => void {
+  _add(
+    method: METHODS,
+  ): <T extends string>(
+    url: T,
+    fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown,
+  ) => void {
     return (url, fn) => {
       let trie = this.getOrNewTireByMethod(method);
 
@@ -78,7 +83,11 @@ export class Router<CTX> {
     };
   }
 
-  add = <T extends string>(method: METHODS, url: T, fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown) => this._add(method)(url, fn);
+  add = <T extends string>(
+    method: METHODS,
+    url: T,
+    fn: (ctx: CTX & { params: ExtractRouteParams<T> }) => Promise<Response> | unknown,
+  ) => this._add(method)(url, fn);
 
   get = this._add("GET");
 
@@ -92,7 +101,10 @@ export class Router<CTX> {
 
   delete = this._add("DELETE");
 
-  _matchTrie(segments: string[], initTrie: Trie<StoreTrieData>): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
+  _matchTrie(
+    segments: string[],
+    initTrie: Trie<StoreTrieData>,
+  ): { trie: Trie<StoreTrieData>; parameters: string[] } | undefined {
     const paths: [Trie<StoreTrieData>, string[], number][] = [[initTrie, [], 0]];
     const segmentLength = segments.length;
     let pathLength = 1;

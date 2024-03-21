@@ -11,7 +11,19 @@ import type { Route, RouterInterface } from "./tool.mts";
 import { trekRouter } from "./trek-router.mts";
 import { tsRouter } from "./tsrouter.mts";
 
-const routers: RouterInterface[] = [regExpRouter, trieRouter, medleyRouter, findMyWayRouter, koaTreeRouter, trekRouter, expressRouter, koaRouter, radix3Router, memoiristRouter, tsRouter];
+const routers: RouterInterface[] = [
+  regExpRouter,
+  trieRouter,
+  medleyRouter,
+  findMyWayRouter,
+  koaTreeRouter,
+  trekRouter,
+  expressRouter,
+  koaRouter,
+  radix3Router,
+  memoiristRouter,
+  tsRouter,
+];
 
 medleyRouter.match({ method: "GET", path: "/user" });
 

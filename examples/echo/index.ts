@@ -25,9 +25,9 @@ class BunApp {
               },
             },
           );
-          // TODO: Match type error here. 1. match return fn did not match get 2. as any
-          // @ts-ignore
-          return fn({ ...req, params: {}, query }).then<Response>((result) => (result instanceof Response ? result : new Response(result)));
+
+          return Promise.resolve(fn({ ...req, params: {}, query })) //
+            .then<Response>((result) => (result instanceof Response ? result : new Response(result as ReadableStream)));
         }
 
         return new Response("404!");
