@@ -22,5 +22,5 @@
   "lint-staged": {
     "*.ts?(x)": "bunx @biomejs/biome format --write"
   },
-  "version": "0.1.0"
+  "version": "0.1.1"
 }

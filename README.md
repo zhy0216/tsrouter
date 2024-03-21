@@ -56,6 +56,8 @@ if (handler) {
 ## To-Do
 
 - **Add Examples**: Detailed usage examples and perhaps a simple guide are planned to help users get started with `tsrouter2`.
+- support typebox validation
+- support middleware?
 
 Contributing
 Contributions of any kind are welcome! Please fork the repository, submit a pull request, or raise an issue for suggestions.

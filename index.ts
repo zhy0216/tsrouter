@@ -132,7 +132,7 @@ export class Router<CTX> {
         ctx: CTX & {
           params: Record<string, string>;
         },
-      ) => Promise<Response | unknown>)
+      ) => Promise<Response> | unknown)
     | undefined {
     const segments = url.split("/");
     const trie: Trie<StoreTrieData> = this.getOrNewTireByMethod(method);
